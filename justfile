@@ -6,6 +6,7 @@ default:
 
 format:
     cargo fmt --all
+    pnpm run format
 
 check:
     cargo check --workspace --all-targets
