@@ -5,6 +5,7 @@
 #![cfg_attr(windows, windows_subsystem = "windows")]
 
 mod desktop_app;
+mod menu_bar;
 
 use desktop_app::DesktopApp;
 
@@ -12,7 +13,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     eframe::run_native(
         "winker",
         eframe::NativeOptions::default(),
-        Box::new(|_cc| Ok(Box::new(DesktopApp))),
+        Box::new(|cc| {
+            cc.egui_ctx.set_fonts(design::font_definitions());
+            Ok(Box::new(DesktopApp {
+                license_modal_open: false,
+            }))
+        }),
     )?;
     Ok(())
 }

@@ -6,8 +6,10 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+design.workspace = true
 eframe.workspace = true
 egui.workspace = true
+ui.workspace = true
 
 [lints]
 workspace = true

@@ -22,6 +22,17 @@ egui でデスクトップアプリケーションを構築するためのテン
 | GUI              | [egui](https://github.com/emilk/egui) / [eframe](https://github.com/emilk/egui/tree/main/crates/eframe) |
 | プラットフォーム | Windows / macOS / Linux                                                                                 |
 | 起動方式         | .exe (Windows) / .app (macOS) / .AppImage (Linux)                                                       |
+| フォント         | 下記「フォント」を参照                                                                                  |
+
+### フォント
+
+アプリには以下のフォントを同梱している。いずれも SIL Open Font License 1.1 で提供され、ライセンス文（各フォント配布元の OFL.txt の複製）は画面上部の「ライセンス」ボタンから開くモーダルで確認できる。モーダルの幅は固定となっている。
+
+| 書体         | フォント                                              | 対象言語     |
+| ------------ | ----------------------------------------------------- | ------------ |
+| サンセリフ体 | [Roboto](https://fonts.google.com/specimen/Roboto)    | 英語         |
+| サンセリフ体 | [LINE Seed JP](https://seed.line.me/index_jp.html)    | 日本語       |
+| セリフ体     | [しっぽり明朝](https://fontdasu.com/shippori-mincho/) | 英語・日本語 |
 
 ## 使い方
 
@@ -29,7 +40,7 @@ egui でデスクトップアプリケーションを構築するためのテン
 cargo run --release --package app-desktop
 ```
 
-起動すると白紙のウィンドウが表示される。
+起動すると、「ライセンス」ボタンを備えたメニューバーと白紙の画面を持つウィンドウが表示される。
 
 ## 配布
 
