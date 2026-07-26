@@ -1,0 +1,75 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+# 同時に複数のリリースを作成してタグの採番が競合しないよう直列化する
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: create release
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-tags: true
+      - id: tag
+        name: Determine the next tag
+        run: |
+          latest=$(git tag --list 'v0.*.0' --sort=-version:refname | head -n 1)
+          if [ -z "$latest" ]; then
+            tag=v0.1.0
+          else
+            minor=${latest#v0.}
+            minor=${minor%.0}
+            tag=v0.$((minor + 1)).0
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.tag.outputs.tag }}" \
+            --target "${{ github.sha }}" \
+            --title "${{ steps.tag.outputs.tag }}" \
+            --generate-notes
+
+  bundle:
+    needs: release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: winker-x86_64-unknown-linux-gnu.AppImage
+          - os: macos-latest
+            artifact: winker-aarch64-apple-darwin.zip
+          - os: windows-latest
+            artifact: winker-x86_64-pc-windows-msvc.zip
+    runs-on: ${{ matrix.os }}
+    name: bundle (${{ matrix.os }})
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: ./.github/actions/setup-just
+      - name: Install the appimagetool dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends desktop-file-utils file
+      - name: Build the bundle
+        shell: bash
+        run: just bundle
+      - name: Upload the bundle to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ needs.release.outputs.tag }}" "target/bundle/${{ matrix.artifact }}" --clobber
